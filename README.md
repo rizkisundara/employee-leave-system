@@ -155,10 +155,6 @@ audit_logs         (system activity trail)
 | GET | `/api/dashboard` | Dashboard stats |
 | POST | `/api/db/setup` | Database setup & seed |
 
-## 📸 Screenshots
-
-> Jalankan aplikasi dan kunjungi `http://localhost:3000` untuk melihat UI.
-
 ## 🤝 Contributing
 
 1. Fork this repository
