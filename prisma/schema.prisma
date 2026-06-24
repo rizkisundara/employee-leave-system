@@ -1,0 +1,89 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model Employee {
+  id            String         @id @default(cuid())
+  name          String
+  department    String
+  position      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  leaveRequests LeaveRequest[]
+  leaveQuotas   LeaveQuota[]
+  user          User?
+}
+
+model User {
+  id         String    @id @default(cuid())
+  username   String    @unique
+  password   String
+  name       String
+  email      String    @unique
+  role       String    @default("employee")
+  status     String    @default("active")
+  avatar     String?
+  lastLogin  DateTime?
+  employeeId String?   @unique
+  employee   Employee? @relation(fields: [employeeId], references: [id], onDelete: SetNull)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model LeaveRequest {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType  String
+  startDate  String
+  endDate    String
+  reason     String
+  status     String   @default("PENDING_MANAGER")
+  approvedBy String?
+  reviewNote String?
+  daysCount  Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Holiday {
+  id          String   @id @default(cuid())
+  name        String
+  date        String
+  type        String
+  description String?
+  isRecurring Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model LeaveQuota {
+  id           String   @id @default(cuid())
+  employeeId   String
+  employee     Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  year         Int
+  totalQuota   Int      @default(12)
+  usedQuota    Int      @default(0)
+  pendingQuota Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([employeeId, year])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  performedBy String
+  targetId    String?
+  targetType  String?
+  details     String
+  timestamp   DateTime @default(now())
+}
